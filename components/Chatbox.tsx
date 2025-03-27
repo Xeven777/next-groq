@@ -111,11 +111,12 @@ const Chatbox = () => {
               <div key={m.id} className="whitespace-pre-wrap">
                 {m.role === "user" ? (
                   <div className="flex flex-row px-2 py-4 sm:px-4">
-                    <Image
+                    <img
                       alt="user"
-                      placeholder="blur"
                       className="mr-2 flex size-6 md:size-8 rounded-full sm:mr-4"
-                      src={userPic}
+                      src={`https://xvatar.vercel.app/api/avatar/${
+                        typeof window !== "undefined" ? window.location.hostname : "127.0.0.1"
+                      }svg?rounded=120&size=240&userLogo=true`}
                       width={32}
                       height={32}
                     />
