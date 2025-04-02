@@ -5,7 +5,6 @@ import sparkles from "@/assets/Sparkle.svg";
 import send from "@/assets/send.svg";
 import robo from "@/assets/Robo.svg";
 import copy from "@/assets/copy.svg";
-import userPic from "@/assets/userPic.jpg";
 import groqpic from "@/assets/groq.jpg";
 import Markdown from "react-markdown";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
@@ -32,7 +31,7 @@ const models = [
   { value: "mixtral-8x7b-32768", label: "Mixtral - 8x7B 32768" },
 ];
 
-const Chatbox = () => {
+const Chatbox = ({ userIp = "default" }) => {
   const [selectedModel, setSelectedModel] = useState("llama-3.3-70b-versatile");
   const [responseTimes, setResponseTimes] = useState<Record<string, number>>(
     {}
@@ -114,9 +113,7 @@ const Chatbox = () => {
                     <img
                       alt="user"
                       className="mr-2 flex size-6 md:size-8 rounded-full sm:mr-4"
-                      src={`https://xvatar.vercel.app/api/avatar/${
-                        typeof window !== "undefined" ? window.location.hostname : "127.0.0.1"
-                      }svg?rounded=120&size=240&userLogo=true`}
+                      src={getAvatarUrl(userIp)}
                       width={32}
                       height={32}
                     />
@@ -324,3 +321,8 @@ const Chatbox = () => {
 };
 
 export default memo(Chatbox);
+
+function getAvatarUrl(ip: string): string {
+  const encodedIp = encodeURIComponent(ip);
+  return `https://xvatar.vercel.app/api/avatar/${encodedIp}?rounded=120&size=240&userLogo=true`;
+}
