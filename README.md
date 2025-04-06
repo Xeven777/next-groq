@@ -42,7 +42,7 @@ A lightning-fast ⚡ chat interface powered by Groq's API and built with Next.js
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/yourusername/next-groq.git
+git clone https://github.com/xeven777/next-groq.git
 cd next-groq
 ```
 
