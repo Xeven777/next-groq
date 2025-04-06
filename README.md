@@ -1,41 +1,120 @@
-2# Vercel AI SDK, Next.js, and Groq Chat Example
+# 🚀 Next.js + Groq AI Chat Application
 
-This example shows how to use the [Vercel AI SDK](https://sdk.vercel.ai/docs) with [Next.js](https://nextjs.org/) and [Groq](https://groq.com/) to create a ChatGPT-like AI-powered streaming chat bot. Groq's APIs are compatible with OpenAI's so we use the OpenAI JS SDK but change its base URL to point to Groq's API with an environment variable.
+A lightning-fast ⚡ chat interface powered by Groq's API and built with Next.js
 
-## Deploy your own
+![Next Groq](app/opengraph-image.png)
 
-Deploy the example using [Vercel](https://vercel.com?utm_source=github&utm_medium=readme&utm_campaign=ai-sdk-example):
+## ✨ Features
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fai%2Ftree%2Fmain%2Fexamples%2Fnext-groq&env=GROQ_API_KEY&envDescription=Groq%20API%20Key&envLink=https%3A%2F%2Fwow.groq.com&project-name=vercel-ai-chat-groq&repository-name=vercel-ai-chat-groq)
+- 🧠 Access to powerful LLMs through Groq's API
+- 🔄 Real-time chat with multiple model options
+- ⏱️ Response time tracking for performance insights
+- 📱 Fully responsive design for all devices
+- 🌙 Dark mode support for comfortable viewing
+- 🤔 "Thinking" states to see model reasoning
+- 📋 Easy text copying functionality
+- 🔌 Simple integration with Next.js applications
 
-## How to use
+## 🤖 Available Models
 
-Execute [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) with [npm](https://docs.npmjs.com/cli/init), [Yarn](https://yarnpkg.com/lang/en/docs/cli/create/), or [pnpm](https://pnpm.io) to bootstrap the example:
+- 🦙 Llama 4 Scout (17B 16e & 128e)
+- 🦙 Llama 3.3 (70B Versatile)
+- 🦙 Llama 3.1 (8B Instant)
+- 🔮 Llama 3.2 (1B & 3B Preview)
+- 🦙 Llama 3 (70B & 8B 8192)
+- 🐦 Qwen QWQ (32B)
+- 🐦 Qwen 2.5 (32B)
+- 👨‍💻 Qwen 2.5 Coder (32B)
+- 🌪️ Mistral Saba (24B)
+- 🔄 Mixtral (8x7B 32768)
+- 💎 Gemma 2 (9B IT)
+- 🔍 Deepseek R1 (Qwen 32B & Llama 70B)
+
+## 🛠️ Getting Started
+
+### Prerequisites
+
+- Node.js 18.x or higher
+- A Groq API key
+
+### Installation
+
+1. Clone the repository:
 
 ```bash
-npx create-next-app --example https://github.com/vercel/ai/tree/main/examples/next-groq next-groq-app
+git clone https://github.com/yourusername/next-groq.git
+cd next-groq
 ```
+
+2. Install dependencies:
 
 ```bash
-yarn create next-app --example https://github.com/vercel/ai/tree/main/examples/next-groq next-groq-app
+npm install
+# or
+yarn
+# or
+pnpm install
 ```
+
+3. Create a `.env.local` file in the root directory:
+
+```
+GROQ_API_KEY=your_groq_api_key
+```
+
+4. Start the development server:
 
 ```bash
-pnpm create next-app --example https://github.com/vercel/ai/tree/main/examples/next-groq next-groq-app
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
 ```
 
-To run the example locally you need to:
+5. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-1. Sign up at [Groq's Developer Platform](https://wow.groq.com) and create an API KEY.
-2. Set the required environment variables as shown [the example env file](./.env.local.example) but in a new file called `.env.local`
-3. `pnpm install` to install the required dependencies.
-4. `pnpm dev` to launch the development server.
+## 📝 Usage
 
-## Learn More
+1. 🔤 Type your message in the input field
+2. 🔄 Select your preferred model from the dropdown
+3. 🚀 Hit "Send" or press Enter
+4. ⏱️ Watch as the AI responds with timing information
 
-To learn more about OpenAI, Next.js, and the Vercel AI SDK take a look at the following resources:
+## 🧩 Project Structure
 
-- [Vercel AI SDK docs](https://sdk.vercel.ai/docs)
-- [Vercel AI Playground](https://play.vercel.ai)
-- [Groq Documentation](https://wow.groq.com/) - learn about Groq features and API.
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+```
+next-groq/
+├── assets/           # Static assets like icons
+├── components/       # React components
+│   └── Chatbox.tsx   # Main chat interface
+├── pages/            # Next.js pages
+├── public/           # Public assets
+├── styles/           # CSS styles
+└── app/              # Next.js App Router
+    └── api/          # API routes for Groq integration
+```
+
+## 🔧 Customization
+
+You can customize the application by:
+
+- Adding new models to the `models` array in `Chatbox.tsx`
+- Modifying the UI theme in your Tailwind configuration
+- Adding new prompt suggestions for quick user interactions
+
+## 👨‍💻 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the project
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 🙏 Acknowledgements
+
+- [Groq](https://groq.com/) for their powerful API
+- [Next.js](https://nextjs.org/) for the React framework
+- [Vercel AI SDK](https://sdk.vercel.ai/docs) for streaming capabilities

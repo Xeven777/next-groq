@@ -311,7 +311,7 @@ const Chatbox = memo(({ userIp }: { userIp: string }) => {
             title="submit"
             type="submit"
             disabled={isLoading}
-            className="absolute bottom-2 right-2.5 rounded-lg px-4 py-2 text-sm font-medium text-neutral-200 focus:outline-hidden focus:ring-2 focus:ring-orange-500 bg-orange-600 hover:bg-orange-700 dark:bg-neutral-800 dark:hover:bg-orange-600 dark:hover:text-neutral-50 transition-all active:scale-95"
+            className="absolute bottom-2 right-2.5 rounded-lg  px-4 py-2 text-sm font-medium text-neutral-200 focus:outline-hidden focus:ring-4 focus:ring-orange-300 bg-orange-600 hover:bg-orange-700 dark:focus:ring-orange-800 sm:text-base flex items-center gap-2 active:scale-95 transition-all"
           >
             {isLoading ? (
               <>
