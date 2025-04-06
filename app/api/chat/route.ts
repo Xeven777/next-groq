@@ -13,9 +13,9 @@ export async function POST(req: Request) {
       system: "You are a helpful assistant",
       messages,
       maxRetries: 3,
-      // experimental_transform: smoothStream({
-      //   chunking: "word",
-      // }),
+      experimental_transform: smoothStream({
+        chunking: "word",
+      }),
     });
 
     return result.toDataStreamResponse();

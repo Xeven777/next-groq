@@ -47,7 +47,7 @@ const models = [
   { value: "mixtral-8x7b-32768", label: "🔄 Mixtral - 8x7B 32768" },
 ];
 
-const Chatbox = ({ userIp = "default" }) => {
+const Chatbox = memo(({ userIp }: { userIp: string }) => {
   const [selectedModel, setSelectedModel] = useState("llama-3.3-70b-versatile");
   const [responseTimes, setResponseTimes] = useState<Record<string, number>>(
     {}
@@ -76,18 +76,21 @@ const Chatbox = ({ userIp = "default" }) => {
     },
   });
 
-  const handleSubmit = (e?: React.FormEvent) => {
-    startTimeRef.current = Date.now();
-    originalHandleSubmit(e);
-  };
+  const handleSubmit = useCallback(
+    (e?: React.FormEvent) => {
+      startTimeRef.current = Date.now();
+      originalHandleSubmit(e);
+    },
+    [originalHandleSubmit]
+  );
 
-  const scrollToBottom = () => {
+  const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, scrollToBottom]);
 
   const handleSuggestionClick = useCallback(
     (suggestion: string) => {
@@ -133,7 +136,6 @@ const Chatbox = ({ userIp = "default" }) => {
                       width={32}
                       height={32}
                     />
-
                     <div className="flex max-w-3xl items-center">
                       <p>{m.content}</p>
                     </div>
@@ -148,7 +150,6 @@ const Chatbox = ({ userIp = "default" }) => {
                       width={32}
                       height={32}
                     />
-
                     <div className="max-w-3xl rounded-xl markdown-body w-full overflow-x-auto">
                       {think && (
                         <div className="text-sm mb-3 p-3 border rounded-lg bg-stone-100 text-stone-600 dark:bg-stone-900 dark:text-stone-400 border-none">
@@ -255,7 +256,6 @@ const Chatbox = ({ userIp = "default" }) => {
         >
           Make Shorter
         </button>
-
         <button
           type="button"
           title="btn"
@@ -277,8 +277,8 @@ const Chatbox = ({ userIp = "default" }) => {
           More professional
         </button>
         <button
-          title="btn"
           type="button"
+          title="btn"
           onClick={() =>
             handleSuggestionClick("Write it in a more casual and light tone.")
           }
@@ -295,7 +295,6 @@ const Chatbox = ({ userIp = "default" }) => {
           Paraphrase
         </button>
       </div>
-
       <form className="mt-2" onSubmit={handleSubmit}>
         <div className="relative">
           <textarea
@@ -312,7 +311,7 @@ const Chatbox = ({ userIp = "default" }) => {
             title="submit"
             type="submit"
             disabled={isLoading}
-            className="absolute bottom-2 right-2.5 rounded-lg  px-4 py-2 text-sm font-medium text-neutral-200 focus:outline-hidden focus:ring-4 focus:ring-orange-300 bg-orange-600 hover:bg-orange-700 dark:focus:ring-orange-800 sm:text-base flex items-center gap-2 active:scale-95 transition-all"
+            className="absolute bottom-2 right-2.5 rounded-lg px-4 py-2 text-sm font-medium text-neutral-200 focus:outline-hidden focus:ring-2 focus:ring-orange-500 bg-orange-600 hover:bg-orange-700 dark:bg-neutral-800 dark:hover:bg-orange-600 dark:hover:text-neutral-50 transition-all active:scale-95"
           >
             {isLoading ? (
               <>
@@ -334,11 +333,11 @@ const Chatbox = ({ userIp = "default" }) => {
       </form>
     </div>
   );
-};
-
-export default memo(Chatbox);
+});
 
 function getAvatarUrl(ip: string): string {
   const encodedIp = encodeURIComponent(ip);
   return `https://xvatar.vercel.app/api/avatar/${encodedIp}?rounded=120&size=240&userLogo=true`;
 }
+
+export default Chatbox;
