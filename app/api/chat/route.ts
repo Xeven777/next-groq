@@ -9,13 +9,13 @@ export async function POST(req: Request) {
     const { messages, selectedModel } = await req.json();
 
     const result = streamText({
-      model: groq(selectedModel ?? "llama-3.1-8b-instant"),
+      model: groq(selectedModel ?? ""),
       system: "You are a helpful assistant",
       messages,
       maxRetries: 3,
-      experimental_transform: smoothStream({
-        chunking: "word",
-      }),
+      // experimental_transform: smoothStream({
+      //   chunking: "word",
+      // }),
     });
 
     return result.toDataStreamResponse();
