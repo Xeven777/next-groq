@@ -17,7 +17,7 @@ A lightning-fast ⚡ chat interface powered by Groq's API and built with Next.js
 
 ## 🤖 Available Models
 
-- 🦙 Llama 4 Scout (17B 16e & 128e)
+- 🦙 Llama 4 Scout (17B 16e)
 - 🦙 Llama 3.3 (70B Versatile)
 - 🦙 Llama 3.1 (8B Instant)
 - 🔮 Llama 3.2 (1B & 3B Preview)

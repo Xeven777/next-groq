@@ -24,10 +24,6 @@ const models = [
     value: "meta-llama/llama-4-scout-17b-16e-instruct",
     label: "🦙 Llama 4 Scout - 17B 16e",
   },
-  {
-    value: "meta-llama/llama-4-maverick-17b-128e-instruct",
-    label: "🦙 Llama 4 Scout - 17B 128e",
-  },
   { value: "qwen-qwq-32b", label: "🐦 Qwen QWQ - 32B" },
   { value: "mistral-saba-24b", label: "🌪️ Mistral Saba - 24B" },
   { value: "qwen-2.5-32b", label: "🐦 Qwen 2.5 - 32B" },
