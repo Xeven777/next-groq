@@ -26,9 +26,6 @@ const models = [
   },
   { value: "qwen-qwq-32b", label: "🐦 Qwen QWQ - 32B" },
   { value: "mistral-saba-24b", label: "🌪️ Mistral Saba - 24B" },
-  { value: "qwen-2.5-32b", label: "🐦 Qwen 2.5 - 32B" },
-  { value: "qwen-2.5-coder-32b", label: "👨‍💻 Qwen 2.5 Coder - 32B" },
-  { value: "deepseek-r1-distill-qwen-32b", label: "🔍 Deepseek R1 Qwen - 32B" },
   {
     value: "deepseek-r1-distill-llama-70b",
     label: "🔍 Deepseek R1 Llama - 70B",
@@ -36,8 +33,6 @@ const models = [
   { value: "llama-3.3-70b-versatile", label: "🦙 Llama 3.3 - 70B Versatile" },
   { value: "gemma2-9b-it", label: "💎 Gemma 2 - 9B IT" },
   { value: "llama-3.1-8b-instant", label: "⚡ Llama 3.1 - 8B Instant" },
-  { value: "llama-3.2-1b-preview", label: "🔮 Llama 3.2 - 1B Preview" },
-  { value: "llama-3.2-3b-preview", label: "🔮 Llama 3.2 - 3B Preview" },
   { value: "llama3-70b-8192", label: "🦙 Llama 3 - 70B 8192" },
   { value: "llama3-8b-8192", label: "🦙 Llama 3 - 8B 8192" },
   { value: "mixtral-8x7b-32768", label: "🔄 Mixtral - 8x7B 32768" },
