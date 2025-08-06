@@ -1,5 +1,5 @@
 "use client";
-import { useChat } from "ai/react";
+import { useChat } from "@ai-sdk/react";
 import Image from "next/image";
 import sparkles from "@/assets/Sparkle.svg";
 import send from "@/assets/send.svg";
@@ -8,6 +8,7 @@ import copy from "@/assets/copy.svg";
 import groqpic from "@/assets/groq.jpg";
 import Markdown from "react-markdown";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
+import { models } from "@/lib/model";
 
 const parseContent = (content: string) => {
   const thinkRegex = /<think>([\s\S]*?)<\/think>/;
@@ -18,29 +19,6 @@ const parseContent = (content: string) => {
   const restContent = content.replace(thinkRegex, "").trim();
   return { think: thinkContent, rest: restContent };
 };
-
-const models = [
-  {
-    value: "meta-llama/llama-4-scout-17b-16e-instruct",
-    label: "🦙 Llama 4 Scout - 17B 16e",
-  },
-  { value: "qwen-qwq-32b", label: "🐦 Qwen QWQ - 32B" },
-  { value: "mistral-saba-24b", label: "🌪️ Mistral Saba - 24B" },
-  {
-    value: "deepseek-r1-distill-llama-70b",
-    label: "🔍 Deepseek R1 Llama - 70B",
-  },
-  {
-    value: "meta-llama/llama-4-maverick-17b-128e-instruct",
-    label: "⚡ Llama 4 Maverick - 17B 128e",
-  },
-  { value: "llama-3.3-70b-versatile", label: "🦙 Llama 3.3 - 70B Versatile" },
-  { value: "gemma2-9b-it", label: "💎 Gemma 2 - 9B IT" },
-  { value: "llama-3.1-8b-instant", label: "⚡ Llama 3.1 - 8B Instant" },
-  { value: "llama3-70b-8192", label: "🦙 Llama 3 - 70B 8192" },
-  { value: "llama3-8b-8192", label: "🦙 Llama 3 - 8B 8192" },
-  { value: "mixtral-8x7b-32768", label: "🔄 Mixtral - 8x7B 32768" },
-];
 
 const Chatbox = memo(({ userIp }: { userIp: string }) => {
   const [selectedModel, setSelectedModel] = useState("llama-3.3-70b-versatile");

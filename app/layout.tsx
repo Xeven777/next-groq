@@ -9,7 +9,7 @@ const mont = Montserrat({ subsets: ["latin"] });
 export const metadata = {
   title: "Groq AI Chatbot",
   description:
-    "Groq AI Chatbot - Made using Next.js 15 and Vercel AI sdk powered by Groq. Supports multiple models like Gemini, Llama4, Llama3, Deepseek, Qwen, Mixtral",
+    "Groq AI Chatbot - Made using Next.js 15 and Vercel AI sdk powered by Groq. Supports multiple models like OpenAI,Gemma, Llama4, Llama3, Deepseek, Kimi, Qwen, Mixtral",
   metadataBase: new URL("https://groq-ai.vercel.app/"),
   manifest: "/manifest.json",
   icons: {
