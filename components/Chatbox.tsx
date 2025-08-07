@@ -1,60 +1,50 @@
 "use client";
 import { useChat } from "@ai-sdk/react";
 import Image from "next/image";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
+import Markdown from "react-markdown";
 import sparkles from "@/assets/Sparkle.svg";
 import send from "@/assets/send.svg";
 import robo from "@/assets/Robo.svg";
 import copy from "@/assets/copy.svg";
 import groqpic from "@/assets/groq.jpg";
-import Markdown from "react-markdown";
-import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { models } from "@/lib/model";
-
-const parseContent = (content: string) => {
-  const thinkRegex = /<think>([\s\S]*?)<\/think>/;
-  const match = content.match(thinkRegex);
-  if (!match) return { think: null, rest: content.trim() };
-
-  const thinkContent = match[1].trim();
-  const restContent = content.replace(thinkRegex, "").trim();
-  return { think: thinkContent, rest: restContent };
-};
+import { DefaultChatTransport } from "ai";
 
 const Chatbox = memo(({ userIp }: { userIp: string }) => {
   const [selectedModel, setSelectedModel] = useState("llama-3.3-70b-versatile");
+  const [input, setInput] = useState("");
   const [responseTimes, setResponseTimes] = useState<Record<string, number>>(
     {}
   );
-  const messagesEndRef = useRef<HTMLDivElement>(null);
   const startTimeRef = useRef<number>(0);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const {
-    messages,
-    input,
-    handleInputChange,
-    handleSubmit: originalHandleSubmit,
-    isLoading,
-    error,
-  } = useChat({
-    body: {
-      selectedModel,
-    },
-    onFinish: (message) => {
-      const endTime = Date.now();
-      const duration = (endTime - startTimeRef.current) / 1000;
-      setResponseTimes((prev) => ({
-        ...prev,
-        [message.id]: duration,
-      }));
+  const { messages, status, error, sendMessage, setMessages } = useChat({
+    transport: new DefaultChatTransport({
+      api: "/api/chat",
+      body: {
+        selectedModel,
+      },
+    }),
+    onFinish: ({ message }) => {
+      const duration = (Date.now() - startTimeRef.current) / 1000;
+      setResponseTimes((prev) => ({ ...prev, [message.id]: duration }));
     },
   });
 
+  const isLoading = status === "streaming";
+
   const handleSubmit = useCallback(
     (e?: React.FormEvent) => {
+      e?.preventDefault();
+      if (!input.trim()) return;
+
       startTimeRef.current = Date.now();
-      originalHandleSubmit(e);
+      sendMessage({ text: input.trim() });
+      setInput("");
     },
-    [originalHandleSubmit]
+    [input, sendMessage]
   );
 
   const scrollToBottom = useCallback(() => {
@@ -65,21 +55,15 @@ const Chatbox = memo(({ userIp }: { userIp: string }) => {
     scrollToBottom();
   }, [messages, scrollToBottom]);
 
-  const handleSuggestionClick = useCallback(
-    (suggestion: string) => {
-      const event = {
-        target: { value: suggestion },
-      } as React.ChangeEvent<HTMLTextAreaElement>;
-      handleInputChange(event);
-    },
-    [handleInputChange]
-  );
+  const handleSuggestionClick = useCallback((suggestion: string) => {
+    setInput(suggestion);
+  }, []);
 
   const handleModelChange = useCallback(
     (event: React.ChangeEvent<HTMLSelectElement>) => {
       setSelectedModel(event.target.value);
     },
-    []
+    [setMessages]
   );
 
   const handleKeyDown = useCallback(
@@ -97,7 +81,6 @@ const Chatbox = memo(({ userIp }: { userIp: string }) => {
       <div className="flex-1 overflow-y-auto rounded-xl bg-neutral-200 p-4 text-sm leading-6 text-neutral-900 dark:bg-neutral-800/60 dark:text-neutral-300 sm:text-base sm:leading-7 border border-orange-600/20 h-full">
         {messages.length > 0 ? (
           messages.map((m) => {
-            const { think, rest } = parseContent(m.content);
             return (
               <div key={m.id} className="whitespace-pre-wrap">
                 {m.role === "user" ? (
@@ -110,7 +93,9 @@ const Chatbox = memo(({ userIp }: { userIp: string }) => {
                       height={32}
                     />
                     <div className="flex max-w-3xl items-center">
-                      <p>{m.content}</p>
+                      <p>
+                        {m.parts[0].type === "text" ? m.parts[0].text : null}
+                      </p>
                     </div>
                   </div>
                 ) : (
@@ -124,15 +109,17 @@ const Chatbox = memo(({ userIp }: { userIp: string }) => {
                       height={32}
                     />
                     <div className="max-w-3xl rounded-xl markdown-body w-full overflow-x-auto">
-                      {think && (
+                      {m.parts[0]?.type === "reasoning" && (
                         <div className="text-sm mb-3 p-3 border rounded-lg bg-stone-100 text-stone-600 dark:bg-stone-900 dark:text-stone-400 border-none">
                           <p className="text-orange-500 animate-pulse p-1">
                             Thinking...
                           </p>
-                          <Markdown>{think}</Markdown>
+                          <Markdown>{m.parts[0].text}</Markdown>
                         </div>
                       )}
-                      <Markdown>{rest}</Markdown>
+                      <Markdown>
+                        {m.parts[0]?.type === "text" ? m.parts[0]?.text : null}
+                      </Markdown>
                       {responseTimes[m.id] && (
                         <div className="text-xs text-neutral-500 mt-2">
                           Response time: {responseTimes[m.id].toFixed(3)}s
@@ -144,7 +131,7 @@ const Chatbox = memo(({ userIp }: { userIp: string }) => {
                       title="copy"
                       className="absolute top-2 right-2 p-1 rounded-full bg-orange-500 dark:bg-neutral-800 transition-all active:scale-95 opacity-50 hover:opacity-75"
                       onClick={() => {
-                        navigator.clipboard.writeText(m.content);
+                        navigator.clipboard.writeText(m.parts[0].type || "");
                         alert("Copied to clipboard");
                       }}
                     >
@@ -180,9 +167,7 @@ const Chatbox = memo(({ userIp }: { userIp: string }) => {
               width={22}
               className="animate-pulse"
             />
-            <span className="bg-linear-to-r bg-[length:200%_200%] animate-bg-pan from-gray-700/40 to-gray-700/40 via-gray-200 bg-clip-text text-transparent">
-              Generating...
-            </span>
+            <span className="text-orange-500 animate-pulse">Generating...</span>
           </div>
         )}
         {error && (
@@ -190,12 +175,12 @@ const Chatbox = memo(({ userIp }: { userIp: string }) => {
         )}
         <div ref={messagesEndRef} />
       </div>
-      {/* Prompt suggestions */}
+
+      {/* Suggestions & Input */}
       <div className="mt-2 flex w-full gap-x-2 overflow-x-auto whitespace-nowrap text-xs text-neutral-600 dark:text-neutral-300 sm:text-sm scrollbar-hide shrink-0">
-        <label htmlFor="model-select" className="sr-only">
-          Select Model
-        </label>
         <select
+          name="model"
+          title="Select Model"
           id="model-select"
           className="block w-full min-w-44 rounded-xl border-none bg-neutral-200 p-4 text-sm text-neutral-900 focus:outline-hidden focus:ring-2 focus:ring-orange-500 dark:bg-neutral-800 dark:text-neutral-200 dark:focus:ring-orange-500 sm:text-base"
           value={selectedModel}
@@ -208,90 +193,72 @@ const Chatbox = memo(({ userIp }: { userIp: string }) => {
           ))}
         </select>
         <button
-          title="btn"
-          type="button"
-          onClick={() =>
-            window.open(
-              "https://img-gen7.netlify.app/",
-              "_blank",
-              "noopener noreferrer"
-            )
-          }
+          onClick={() => window.open("https://img-gen7.netlify.app/", "_blank")}
           className="rounded-lg hover:bg-linear-to-br from-orange-600 to-rose-600 p-2 hover:text-white transition-all active:scale-105 border border-orange-600 font-semibold"
         >
           Generate Image ✨
         </button>
         <button
-          title="btn"
-          type="button"
           onClick={() => handleSuggestionClick("Make it Shorter and simpler.")}
           className="rounded-lg bg-neutral-200 p-2 hover:bg-orange-600 hover:text-neutral-200 dark:bg-neutral-800 dark:hover:bg-orange-600 dark:hover:text-neutral-50 transition-all active:scale-105"
         >
           Make Shorter
         </button>
         <button
-          type="button"
-          title="btn"
           onClick={() =>
             handleSuggestionClick("Make it longer. explain it nicely")
           }
           className="rounded-lg bg-neutral-200 p-2 hover:bg-orange-600 hover:text-neutral-200 dark:bg-neutral-800 dark:hover:bg-orange-600 dark:hover:text-neutral-50 transition-all active:scale-105"
         >
-          Make longer
+          Make Longer
         </button>
         <button
-          type="button"
-          title="btn"
           onClick={() =>
             handleSuggestionClick("Write it in a more professional tone.")
           }
           className="rounded-lg bg-neutral-200 p-2 hover:bg-orange-600 hover:text-neutral-200 dark:bg-neutral-800 dark:hover:bg-orange-600 dark:hover:text-neutral-50 transition-all active:scale-105"
         >
-          More professional
+          More Professional
         </button>
         <button
-          type="button"
-          title="btn"
           onClick={() =>
             handleSuggestionClick("Write it in a more casual and light tone.")
           }
           className="rounded-lg bg-neutral-200 p-2 hover:bg-orange-600 hover:text-neutral-200 dark:bg-neutral-800 dark:hover:bg-orange-600 dark:hover:text-neutral-50 transition-all active:scale-105"
         >
-          More casual
+          More Casual
         </button>
         <button
-          title="btn"
-          type="button"
           onClick={() => handleSuggestionClick("Paraphrase it")}
           className="rounded-lg bg-neutral-200 p-2 hover:bg-orange-600 hover:text-neutral-200 dark:bg-neutral-800 dark:hover:bg-orange-600 dark:hover:text-neutral-50 transition-all active:scale-105"
         >
           Paraphrase
         </button>
       </div>
+
       <form className="mt-2" onSubmit={handleSubmit}>
         <div className="relative">
           <textarea
             id="chat-input"
-            className="block caret-orange-600 w-full rounded-xl border-none bg-neutral-200 p-4 pl-2 pr-20 text-sm text-neutral-900 focus:outline-hidden focus:ring-2 focus:ring-orange-500 dark:bg-neutral-800 dark:text-neutral-200 dark:placeholder-neutral-400 dark:focus:ring-orange-500 sm:text-base resize-y"
+            className="block caret-orange-600 w-full rounded-xl border-none bg-neutral-200 p-4 pl-2 pr-20 text-sm text-neutral-900 focus:outline-hidden focus:ring-2 focus:ring-orange-500 dark:bg-neutral-800 dark:text-neutral-200 sm:text-base resize-y"
             placeholder="Enter your prompt"
             rows={1}
             value={input}
             required
-            onChange={handleInputChange}
+            onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
           />
           <button
-            title="submit"
             type="submit"
             disabled={isLoading}
-            className="absolute bottom-2 right-2.5 rounded-lg  px-4 py-2 text-sm font-medium text-neutral-200 focus:outline-hidden focus:ring-4 focus:ring-orange-300 bg-orange-600 hover:bg-orange-700 dark:focus:ring-orange-800 sm:text-base flex items-center gap-2 active:scale-95 transition-all"
+            className="absolute bottom-2 right-2.5 rounded-lg px-4 py-2 text-sm font-medium text-neutral-200 bg-orange-600 hover:bg-orange-700 dark:focus:ring-orange-800 sm:text-base flex items-center gap-2 active:scale-95 transition-all"
           >
             {isLoading ? (
               <>
                 Generating
                 <Image
                   src={sparkles}
-                  alt="#"
+                  alt="loading"
                   width={22}
                   className="animate-pulse"
                 />

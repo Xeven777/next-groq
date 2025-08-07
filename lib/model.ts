@@ -15,14 +15,6 @@ export const models = [
     label: "🦙 Llama 4 Scout - 17B 16e",
   },
   {
-    value: "meta-llama/llama-prompt-guard-2-22m",
-    label: "🛡️ Llama Prompt Guard 2 - 22M",
-  },
-  {
-    value: "meta-llama/llama-prompt-guard-2-86m",
-    label: "🛡️ Llama Prompt Guard 2 - 86M",
-  },
-  {
     value: "moonshotai/kimi-k2-instruct",
     label: "🌙 Moonshot Kimi K2 Instruct",
   },
