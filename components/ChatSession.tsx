@@ -127,8 +127,25 @@ export function ChatSession({
                         );
                       }
                       if (part.type === "text") {
+                        const parsed = parseThinkingContent(part.text);
                         return (
-                          <Markdown key={`${m.id}-text`}>{part.text}</Markdown>
+                          <div key={`${m.id}-text`}>
+                            {parsed.hasReasoning &&
+                              parsed.reasoning.map((reasoningText, index) => (
+                                <div
+                                  key={`${m.id}-parsed-reasoning-${index}`}
+                                  className="text-sm mb-3 p-3 border rounded-lg bg-stone-100 text-stone-600 dark:bg-stone-900 dark:text-stone-400 border-none"
+                                >
+                                  <p className="text-orange-500 animate-pulse p-1">
+                                    Thinking...
+                                  </p>
+                                  <Markdown>{reasoningText}</Markdown>
+                                </div>
+                              ))}
+                            {parsed.cleanText && (
+                              <Markdown>{parsed.cleanText}</Markdown>
+                            )}
+                          </div>
                         );
                       }
                       return null;
@@ -146,7 +163,10 @@ export function ChatSession({
                     onClick={() => {
                       const textContent = m.parts
                         .filter((part) => part.type === "text")
-                        .map((part) => part.text)
+                        .map((part) => {
+                          const parsed = parseThinkingContent(part.text);
+                          return parsed.cleanText || part.text;
+                        })
                         .join("");
                       navigator.clipboard.writeText(textContent);
                       alert("Copied to clipboard");
@@ -239,4 +259,28 @@ export function ChatSession({
 function getAvatarUrl(ip: string): string {
   const encodedIp = encodeURIComponent(ip);
   return `https://xvatar.vercel.app/api/avatar/${encodedIp}?rounded=120&size=240&userLogo=true`;
+}
+
+export function parseThinkingContent(text: string) {
+  const thinkingRegex = /<think>([\s\S]*?)<\/think>/gi;
+  const matches = [];
+  let match;
+  let cleanedText = text;
+
+  while ((match = thinkingRegex.exec(text)) !== null) {
+    matches.push({
+      type: "reasoning" as const,
+      text: match[1].trim(),
+      startIndex: match.index,
+      endIndex: match.index + match[0].length,
+    });
+  }
+
+  cleanedText = text.replace(thinkingRegex, "").trim();
+
+  return {
+    reasoning: matches.map((m) => m.text),
+    cleanText: cleanedText,
+    hasReasoning: matches.length > 0,
+  };
 }

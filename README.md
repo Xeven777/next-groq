@@ -17,18 +17,17 @@ A lightning-fast ⚡ chat interface powered by Groq's API and built with Next.js
 
 ## 🤖 Available Models
 
-- 🦙 Llama 4 Scout (17B 16e)
-- 🦙 Llama 3.3 (70B Versatile)
-- 🦙 Llama 3.1 (8B Instant)
-- 🔮 Llama 3.2 (1B & 3B Preview)
-- 🦙 Llama 3 (70B & 8B 8192)
-- 🐦 Qwen QWQ (32B)
-- 🐦 Qwen 2.5 (32B)
-- 👨‍💻 Qwen 2.5 Coder (32B)
-- 🌪️ Mistral Saba (24B)
-- 🔄 Mixtral (8x7B 32768)
-- 💎 Gemma 2 (9B IT)
-- 🔍 Deepseek R1 (Qwen 32B & Llama 70B)
+- 🤖 OpenAI GPT OSS - 120B: Large-scale language understanding
+- 🤖 OpenAI GPT OSS - 20B: Large-scale language understanding
+- 🧪 Compound Beta: Experimental model for novel tasks
+- 🌙 Moonshot Kimi K2: Advanced conversational AI
+- 🐦 Qwen Qwen3 - 32B: Multilingual capabilities
+- ⚡ Llama 4 Maverick - 17B 128e: Optimized for long context processing
+- 🦙 Llama 4 Scout - 17B 16e: Specialized for code generation
+- 🔍 Deepseek R1 Llama - 70B: Specialized for complex reasoning
+- 🦙 Llama 3.3 - 70B Versatile: Balanced performance for most tasks
+- ⚡ Llama 3.1 - 8B Instant: Fast responses with moderate context
+- 💎 Gemma 2 - 9B IT: Lightweight model for efficient inference
 
 ## 🛠️ Getting Started
 
