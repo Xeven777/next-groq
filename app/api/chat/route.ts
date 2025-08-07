@@ -19,6 +19,8 @@ export async function POST(req: Request) {
       selectedModel: string;
     } = await req.json();
 
+    console.log(selectedModel);
+
     const result = streamText({
       model: groq(selectedModel ?? "llama-3.3-70b-versatile"),
       system: "You are a helpful assistant",
