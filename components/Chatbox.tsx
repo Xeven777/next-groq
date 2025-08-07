@@ -41,7 +41,9 @@ const Chatbox = memo(({ userIp }: { userIp: string }) => {
       if (!input.trim()) return;
 
       startTimeRef.current = Date.now();
-      sendMessage({ text: input.trim() });
+      sendMessage({
+        parts: [{ type: "text", text: input.trim() }],
+      });
       setInput("");
     },
     [input, sendMessage]
@@ -94,7 +96,12 @@ const Chatbox = memo(({ userIp }: { userIp: string }) => {
                     />
                     <div className="flex max-w-3xl items-center">
                       <p>
-                        {m.parts[0].type === "text" ? m.parts[0].text : null}
+                        {m.parts.map((part) => {
+                          if (part.type === "text") {
+                            return part.text;
+                          }
+                          return null;
+                        })}
                       </p>
                     </div>
                   </div>
@@ -109,17 +116,29 @@ const Chatbox = memo(({ userIp }: { userIp: string }) => {
                       height={32}
                     />
                     <div className="max-w-3xl rounded-xl markdown-body w-full overflow-x-auto">
-                      {m.parts[0]?.type === "reasoning" && (
-                        <div className="text-sm mb-3 p-3 border rounded-lg bg-stone-100 text-stone-600 dark:bg-stone-900 dark:text-stone-400 border-none">
-                          <p className="text-orange-500 animate-pulse p-1">
-                            Thinking...
-                          </p>
-                          <Markdown>{m.parts[0].text}</Markdown>
-                        </div>
-                      )}
-                      <Markdown>
-                        {m.parts[0]?.type === "text" ? m.parts[0]?.text : null}
-                      </Markdown>
+                      {m.parts.map((part) => {
+                        if (part.type === "reasoning") {
+                          return (
+                            <div
+                              key={`${m.id}-reasoning`}
+                              className="text-sm mb-3 p-3 border rounded-lg bg-stone-100 text-stone-600 dark:bg-stone-900 dark:text-stone-400 border-none"
+                            >
+                              <p className="text-orange-500 animate-pulse p-1">
+                                Thinking...
+                              </p>
+                              <Markdown>{part.text}</Markdown>
+                            </div>
+                          );
+                        }
+                        if (part.type === "text") {
+                          return (
+                            <Markdown key={`${m.id}-text`}>
+                              {part.text}
+                            </Markdown>
+                          );
+                        }
+                        return null;
+                      })}
                       {responseTimes[m.id] && (
                         <div className="text-xs text-neutral-500 mt-2">
                           Response time: {responseTimes[m.id].toFixed(3)}s
@@ -131,7 +150,11 @@ const Chatbox = memo(({ userIp }: { userIp: string }) => {
                       title="copy"
                       className="absolute top-2 right-2 p-1 rounded-full bg-orange-500 dark:bg-neutral-800 transition-all active:scale-95 opacity-50 hover:opacity-75"
                       onClick={() => {
-                        navigator.clipboard.writeText(m.parts[0].type || "");
+                        const textContent = m.parts
+                          .filter((part) => part.type === "text")
+                          .map((part) => part.text)
+                          .join("");
+                        navigator.clipboard.writeText(textContent);
                         alert("Copied to clipboard");
                       }}
                     >
