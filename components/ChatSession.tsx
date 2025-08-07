@@ -16,11 +16,13 @@ export function ChatSession({
   userIp,
   input,
   setInput,
+  modelControls,
 }: {
   model: string;
   userIp: string;
   input: string;
   setInput: (v: string) => void;
+  modelControls?: React.ReactNode;
 }) {
   const [responseTimes, setResponseTimes] = useState<Record<string, number>>(
     {}
@@ -37,7 +39,7 @@ export function ChatSession({
     [model]
   );
 
-  const { messages, status, error, sendMessage, setMessages } = useChat({
+  const { messages, status, error, sendMessage } = useChat({
     transport,
     onFinish: ({ message }) => {
       const duration = (Date.now() - startTimeRef.current) / 1000;
@@ -191,6 +193,8 @@ export function ChatSession({
         )}
         <div ref={messagesEndRef} />
       </div>
+
+      {modelControls && <div className="mt-2">{modelControls}</div>}
 
       {/* Input */}
       <form className="mt-2" onSubmit={handleSubmit}>
