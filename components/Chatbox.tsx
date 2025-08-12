@@ -52,47 +52,30 @@ const Chatbox = memo(({ userIp }: { userIp: string }) => {
             >
               Generate Image ✨
             </button>
-
-            <button
-              onClick={() =>
-                handleSuggestionClick("Make it Shorter and simpler.")
-              }
-              className="rounded-lg bg-neutral-200 p-2 hover:bg-orange-600 hover:text-neutral-200 dark:bg-neutral-800 dark:hover:bg-orange-600 dark:hover:text-neutral-50 transition-all active:scale-105"
-            >
-              Make Shorter
-            </button>
-            <button
-              onClick={() =>
-                handleSuggestionClick("Make it longer. explain it nicely")
-              }
-              className="rounded-lg bg-neutral-200 p-2 hover:bg-orange-600 hover:text-neutral-200 dark:bg-neutral-800 dark:hover:bg-orange-600 dark:hover:text-neutral-50 transition-all active:scale-105"
-            >
-              Make Longer
-            </button>
-            <button
-              onClick={() =>
-                handleSuggestionClick("Write it in a more professional tone.")
-              }
-              className="rounded-lg bg-neutral-200 p-2 hover:bg-orange-600 hover:text-neutral-200 dark:bg-neutral-800 dark:hover:bg-orange-600 dark:hover:text-neutral-50 transition-all active:scale-105"
-            >
-              More Professional
-            </button>
-            <button
-              onClick={() =>
-                handleSuggestionClick(
-                  "Write it in a more casual and light tone."
-                )
-              }
-              className="rounded-lg bg-neutral-200 p-2 hover:bg-orange-600 hover:text-neutral-200 dark:bg-neutral-800 dark:hover:bg-orange-600 dark:hover:text-neutral-50 transition-all active:scale-105"
-            >
-              More Casual
-            </button>
-            <button
-              onClick={() => handleSuggestionClick("Paraphrase it")}
-              className="rounded-lg bg-neutral-200 p-2 hover:bg-orange-600 hover:text-neutral-200 dark:bg-neutral-800 dark:hover:bg-orange-600 dark:hover:text-neutral-50 transition-all active:scale-105"
-            >
-              Paraphrase
-            </button>
+            {[
+              { label: "Make Shorter", value: "Make it Shorter and simpler." },
+              {
+                label: "Make Longer",
+                value: "Make it longer. explain it nicely",
+              },
+              {
+                label: "More Professional",
+                value: "Write it in a more professional tone.",
+              },
+              {
+                label: "More Casual",
+                value: "Write it in a more casual and light tone.",
+              },
+              { label: "Paraphrase", value: "Paraphrase it" },
+            ].map((suggestion) => (
+              <button
+                key={suggestion.label}
+                onClick={() => handleSuggestionClick(suggestion.value)}
+                className="rounded-lg bg-neutral-200 p-2 hover:bg-orange-600 hover:text-neutral-200 dark:bg-neutral-800 dark:hover:bg-orange-600 dark:hover:text-neutral-50 transition-all active:scale-105"
+              >
+                {suggestion.label}
+              </button>
+            ))}
           </div>
         }
       />
