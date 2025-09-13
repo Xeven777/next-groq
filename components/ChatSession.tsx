@@ -2,6 +2,11 @@
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
+import remarkBreaks from "remark-breaks";
+import rehypeKatex from "rehype-katex";
+import rehypeHighlight from "rehype-highlight";
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
@@ -122,7 +127,25 @@ export function ChatSession({
                             <p className="text-orange-500 animate-pulse p-1">
                               Thinking...
                             </p>
-                            <Markdown>{part.text}</Markdown>
+                            <Markdown
+                              remarkPlugins={[
+                                remarkGfm,
+                                remarkMath,
+                                remarkBreaks,
+                              ]}
+                              rehypePlugins={[rehypeKatex, rehypeHighlight]}
+                              components={{
+                                table: ({ children }) => (
+                                  <div className="overflow-x-auto my-4">
+                                    <table className="min-w-full">
+                                      {children}
+                                    </table>
+                                  </div>
+                                ),
+                              }}
+                            >
+                              {part.text}
+                            </Markdown>
                           </div>
                         );
                       }
@@ -139,11 +162,50 @@ export function ChatSession({
                                   <p className="text-orange-500 animate-pulse p-1">
                                     Thinking...
                                   </p>
-                                  <Markdown>{reasoningText}</Markdown>
+                                  <Markdown
+                                    remarkPlugins={[
+                                      remarkGfm,
+                                      remarkMath,
+                                      remarkBreaks,
+                                    ]}
+                                    rehypePlugins={[
+                                      rehypeKatex,
+                                      rehypeHighlight,
+                                    ]}
+                                    components={{
+                                      table: ({ children }) => (
+                                        <div className="overflow-x-auto my-4">
+                                          <table className="min-w-full">
+                                            {children}
+                                          </table>
+                                        </div>
+                                      ),
+                                    }}
+                                  >
+                                    {reasoningText}
+                                  </Markdown>
                                 </div>
                               ))}
                             {parsed.cleanText && (
-                              <Markdown>{parsed.cleanText}</Markdown>
+                              <Markdown
+                                remarkPlugins={[
+                                  remarkGfm,
+                                  remarkMath,
+                                  remarkBreaks,
+                                ]}
+                                rehypePlugins={[rehypeKatex, rehypeHighlight]}
+                                components={{
+                                  table: ({ children }) => (
+                                    <div className="overflow-x-auto my-4">
+                                      <table className="min-w-full">
+                                        {children}
+                                      </table>
+                                    </div>
+                                  ),
+                                }}
+                              >
+                                {parsed.cleanText}
+                              </Markdown>
                             )}
                           </div>
                         );
