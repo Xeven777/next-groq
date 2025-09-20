@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useState, useEffect } from "react";
-import { SavedChat } from "@/lib/chat-history";
+import { MAX_CHATS, SavedChat } from "@/lib/chat-history";
 import { ChatHistoryItem } from "./ChatHistoryItem";
 
 interface ChatHistorySidebarProps {
@@ -108,7 +108,7 @@ export const ChatHistorySidebar = memo(function ChatHistorySidebar({
               </button>
             </div>
             <p className="text-sm text-neutral-500 dark:text-neutral-400">
-              {chats.length} of 5 recent conversations
+              {chats.length} of {MAX_CHATS} recent conversations
             </p>
           </div>
 
@@ -158,7 +158,9 @@ export const ChatHistorySidebar = memo(function ChatHistorySidebar({
           <div className="p-4 border-t border-neutral-200 dark:border-neutral-700">
             <div className="text-xs text-neutral-500 dark:text-neutral-400 text-center">
               <p>Chats are saved locally in your browser</p>
-              <p className="mt-1">Only the 5 most recent chats are kept</p>
+              <p className="mt-1">
+                Only the {MAX_CHATS} most recent chats are kept
+              </p>
             </div>
           </div>
         </div>

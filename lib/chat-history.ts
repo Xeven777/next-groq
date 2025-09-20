@@ -17,7 +17,7 @@ export interface ChatHistoryStorage {
 
 // Constants
 const STORAGE_KEY = "groq-chat-history";
-const MAX_CHATS = 10;
+export const MAX_CHATS = 10;
 const STORAGE_VERSION = 1;
 
 // Utility functions
