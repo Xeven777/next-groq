@@ -10,14 +10,18 @@ export interface UseChatHistoryReturn {
   currentChatId: string | null;
   isLoading: boolean;
   error: string | null;
-  
+
   // Actions
-  saveCurrentChat: (messages: UIMessage[], model: string, title?: string) => Promise<SavedChat | null>;
+  saveCurrentChat: (
+    messages: UIMessage[],
+    model: string,
+    title?: string
+  ) => Promise<SavedChat | null>;
   loadChat: (chatId: string) => SavedChat | null;
   deleteChat: (chatId: string) => Promise<boolean>;
   clearAllChats: () => Promise<boolean>;
   setCurrentChatId: (chatId: string | null) => void;
-  
+
   // Auto-save functionality
   enableAutoSave: (messages: UIMessage[], model: string) => void;
   disableAutoSave: () => void;
@@ -28,10 +32,13 @@ export function useChatHistory(): UseChatHistoryReturn {
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Auto-save refs
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const lastAutoSaveRef = useRef<{ messages: UIMessage[]; model: string } | null>(null);
+  const lastAutoSaveRef = useRef<{
+    messages: UIMessage[];
+    model: string;
+  } | null>(null);
 
   // Load chats from localStorage on mount
   useEffect(() => {
@@ -62,67 +69,64 @@ export function useChatHistory(): UseChatHistoryReturn {
   }, []);
 
   // Save current chat
-  const saveCurrentChat = useCallback(async (
-    messages: UIMessage[],
-    model: string,
-    title?: string
-  ): Promise<SavedChat | null> => {
-    try {
-      setError(null);
-      
-      // Don't save empty chats
-      if (!messages || messages.length === 0) {
-        return null;
-      }
+  const saveCurrentChat = useCallback(
+    async (messages: UIMessage[], model: string): Promise<SavedChat | null> => {
+      try {
+        setError(null);
 
-      let savedChat: SavedChat | null = null;
-
-      if (currentChatId) {
-        // Update existing chat
-        const success = chatHistoryManager.updateChat(currentChatId, {
-          messages,
-          model,
-          title,
-        });
-        
-        if (success) {
-          savedChat = chatHistoryManager.getChatById(currentChatId);
+        // Don't save empty chats
+        if (!messages || messages.length === 0) {
+          return null;
         }
-      } else {
-        // Save as new chat
-        savedChat = chatHistoryManager.saveChat({
-          title: title || "",
-          messages,
-          model,
-        });
-        
+
+        let savedChat: SavedChat | null = null;
+
+        if (currentChatId) {
+          // Update existing chat
+          const success = chatHistoryManager.updateChat(currentChatId, {
+            messages,
+            model,
+          });
+
+          if (success) {
+            savedChat = chatHistoryManager.getChatById(currentChatId);
+          }
+        } else {
+          // Save as new chat
+          savedChat = chatHistoryManager.saveChat({
+            messages,
+            model,
+          });
+
+          if (savedChat) {
+            setCurrentChatId(savedChat.id);
+          }
+        }
+
         if (savedChat) {
-          setCurrentChatId(savedChat.id);
+          // Refresh the chats list
+          const updatedChats = chatHistoryManager.getAllChats();
+          setChats(updatedChats);
+          return savedChat;
+        } else {
+          setError("Failed to save chat");
+          return null;
         }
-      }
-
-      if (savedChat) {
-        // Refresh the chats list
-        const updatedChats = chatHistoryManager.getAllChats();
-        setChats(updatedChats);
-        return savedChat;
-      } else {
+      } catch (err) {
+        console.error("Failed to save chat:", err);
         setError("Failed to save chat");
         return null;
       }
-    } catch (err) {
-      console.error("Failed to save chat:", err);
-      setError("Failed to save chat");
-      return null;
-    }
-  }, [currentChatId]);
+    },
+    [currentChatId]
+  );
 
   // Load a specific chat
   const loadChat = useCallback((chatId: string): SavedChat | null => {
     try {
       setError(null);
       const chat = chatHistoryManager.getChatById(chatId);
-      
+
       if (chat) {
         setCurrentChatId(chatId);
         return chat;
@@ -138,38 +142,41 @@ export function useChatHistory(): UseChatHistoryReturn {
   }, []);
 
   // Delete a chat
-  const deleteChat = useCallback(async (chatId: string): Promise<boolean> => {
-    try {
-      setError(null);
-      const success = chatHistoryManager.deleteChat(chatId);
-      
-      if (success) {
-        // If we're currently viewing the deleted chat, clear the current chat ID
-        if (currentChatId === chatId) {
-          setCurrentChatId(null);
+  const deleteChat = useCallback(
+    async (chatId: string): Promise<boolean> => {
+      try {
+        setError(null);
+        const success = chatHistoryManager.deleteChat(chatId);
+
+        if (success) {
+          // If we're currently viewing the deleted chat, clear the current chat ID
+          if (currentChatId === chatId) {
+            setCurrentChatId(null);
+          }
+
+          // Refresh the chats list
+          const updatedChats = chatHistoryManager.getAllChats();
+          setChats(updatedChats);
+          return true;
+        } else {
+          setError("Failed to delete chat");
+          return false;
         }
-        
-        // Refresh the chats list
-        const updatedChats = chatHistoryManager.getAllChats();
-        setChats(updatedChats);
-        return true;
-      } else {
+      } catch (err) {
+        console.error("Failed to delete chat:", err);
         setError("Failed to delete chat");
         return false;
       }
-    } catch (err) {
-      console.error("Failed to delete chat:", err);
-      setError("Failed to delete chat");
-      return false;
-    }
-  }, [currentChatId]);
+    },
+    [currentChatId]
+  );
 
   // Clear all chats
   const clearAllChats = useCallback(async (): Promise<boolean> => {
     try {
       setError(null);
       const success = chatHistoryManager.clearAllChats();
-      
+
       if (success) {
         setChats([]);
         setCurrentChatId(null);
@@ -186,27 +193,31 @@ export function useChatHistory(): UseChatHistoryReturn {
   }, []);
 
   // Auto-save functionality
-  const enableAutoSave = useCallback((messages: UIMessage[], model: string) => {
-    // Clear existing timeout
-    if (autoSaveTimeoutRef.current) {
-      clearTimeout(autoSaveTimeoutRef.current);
-    }
+  const enableAutoSave = useCallback(
+    (messages: UIMessage[], model: string) => {
+      // Clear existing timeout
+      if (autoSaveTimeoutRef.current) {
+        clearTimeout(autoSaveTimeoutRef.current);
+      }
 
-    // Check if we need to save (messages have changed)
-    const lastSave = lastAutoSaveRef.current;
-    const hasChanged = !lastSave || 
-      lastSave.messages.length !== messages.length ||
-      lastSave.model !== model ||
-      JSON.stringify(lastSave.messages) !== JSON.stringify(messages);
+      // Check if we need to save (messages have changed)
+      const lastSave = lastAutoSaveRef.current;
+      const hasChanged =
+        !lastSave ||
+        lastSave.messages.length !== messages.length ||
+        lastSave.model !== model ||
+        JSON.stringify(lastSave.messages) !== JSON.stringify(messages);
 
-    if (hasChanged && messages.length > 0) {
-      // Debounce auto-save by 2 seconds
-      autoSaveTimeoutRef.current = setTimeout(() => {
-        saveCurrentChat(messages, model);
-        lastAutoSaveRef.current = { messages: [...messages], model };
-      }, 2000);
-    }
-  }, [saveCurrentChat]);
+      if (hasChanged && messages.length > 0) {
+        // Debounce auto-save by 2 seconds
+        autoSaveTimeoutRef.current = setTimeout(() => {
+          saveCurrentChat(messages, model);
+          lastAutoSaveRef.current = { messages: [...messages], model };
+        }, 2000);
+      }
+    },
+    [saveCurrentChat]
+  );
 
   const disableAutoSave = useCallback(() => {
     if (autoSaveTimeoutRef.current) {
@@ -222,14 +233,14 @@ export function useChatHistory(): UseChatHistoryReturn {
     currentChatId,
     isLoading,
     error,
-    
+
     // Actions
     saveCurrentChat,
     loadChat,
     deleteChat,
     clearAllChats,
     setCurrentChatId,
-    
+
     // Auto-save
     enableAutoSave,
     disableAutoSave,

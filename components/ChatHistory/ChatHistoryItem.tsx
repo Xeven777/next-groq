@@ -2,7 +2,39 @@
 
 import { memo, useState } from "react";
 import { SavedChat } from "@/lib/chat-history";
+import { UIMessage } from "ai";
 import { getModelByValue } from "@/lib/model";
+
+// Generate display title from messages
+function getDisplayTitle(messages: UIMessage[]): string {
+  const firstUserMessage = messages.find(
+    (msg) =>
+      msg.role === "user" && msg.parts?.some((part) => part.type === "text")
+  );
+
+  if (!firstUserMessage) {
+    return "New Chat";
+  }
+
+  const textParts =
+    firstUserMessage.parts?.filter((part) => part.type === "text") || [];
+  const fullText = textParts
+    .map((part) => part.text)
+    .join(" ")
+    .trim();
+
+  if (!fullText) {
+    return "New Chat";
+  }
+
+  // Use first 5 words for title
+  const words = fullText.split(/\s+/).filter((word) => word.length > 0);
+  const titleWords = words.slice(0, 5);
+  const title = titleWords.join(" ");
+
+  // Add ellipsis if there are more words
+  return words.length > 5 ? `${title}...` : title;
+}
 
 interface ChatHistoryItemProps {
   chat: SavedChat;
@@ -20,6 +52,7 @@ export const ChatHistoryItem = memo(function ChatHistoryItem({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const model = getModelByValue(chat.model);
   const modelLabel = model?.label || chat.model;
+  const displayTitle = getDisplayTitle(chat.messages);
 
   const formatDate = (timestamp: number) => {
     const date = new Date(timestamp);
@@ -27,7 +60,7 @@ export const ChatHistoryItem = memo(function ChatHistoryItem({
     const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
 
     if (diffInHours < 1) {
-      return "Just now";
+      return "Recently";
     } else if (diffInHours < 24) {
       return `${Math.floor(diffInHours)}h ago`;
     } else if (diffInHours < 24 * 7) {
@@ -66,9 +99,9 @@ export const ChatHistoryItem = memo(function ChatHistoryItem({
               ? "text-orange-900 dark:text-orange-100"
               : "text-neutral-900 dark:text-neutral-100"
           }`}
-          title={chat.title}
+          title={displayTitle}
         >
-          {chat.title}
+          {displayTitle}
         </h3>
       </div>
 
@@ -92,7 +125,7 @@ export const ChatHistoryItem = memo(function ChatHistoryItem({
             type="button"
             onClick={handleDelete}
             className="flex-1 px-2 py-1 text-xs font-medium text-white bg-red-600 hover:bg-red-700 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1"
-            aria-label={`Confirm delete chat: ${chat.title}`}
+            aria-label={`Confirm delete chat: ${displayTitle}`}
           >
             Confirm Delete
           </button>
@@ -112,7 +145,7 @@ export const ChatHistoryItem = memo(function ChatHistoryItem({
             onClick={() => onContinue(chat)}
             className="flex-1 px-2 py-1 text-xs font-medium text-orange-600 bg-orange-100 hover:bg-orange-200 dark:text-orange-400 dark:bg-orange-900/30 dark:hover:bg-orange-900/50 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-1"
             title="Continue chat"
-            aria-label={`Continue chat: ${chat.title}`}
+            aria-label={`Continue chat: ${displayTitle}`}
           >
             Continue
           </button>
@@ -121,7 +154,7 @@ export const ChatHistoryItem = memo(function ChatHistoryItem({
             onClick={handleDelete}
             className="px-2 py-1 text-xs font-medium text-red-600 bg-red-100 hover:bg-red-200 dark:text-red-400 dark:bg-red-900/30 dark:hover:bg-red-900/50 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1"
             title="Delete chat"
-            aria-label={`Delete chat: ${chat.title}`}
+            aria-label={`Delete chat: ${displayTitle}`}
           >
             <svg
               width="14"

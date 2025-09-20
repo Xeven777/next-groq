@@ -3,7 +3,6 @@ import { UIMessage } from "ai";
 // Types for chat history
 export interface SavedChat {
   id: string;
-  title: string;
   messages: UIMessage[];
   model: string;
   createdAt: number;
@@ -22,7 +21,7 @@ const STORAGE_VERSION = 1;
 
 // Utility functions
 export function generateChatId(): string {
-  return `chat_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  return `chat_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
 }
 
 export function generateChatTitle(messages: UIMessage[]): string {
@@ -162,7 +161,6 @@ export class ChatHistoryManager {
     const newChat: SavedChat = {
       ...chat,
       id: generateChatId(),
-      title: chat.title || generateChatTitle(chat.messages),
       createdAt: now,
       updatedAt: now,
     };
@@ -181,7 +179,7 @@ export class ChatHistoryManager {
 
   updateChat(
     id: string,
-    updates: Partial<Pick<SavedChat, "title" | "messages" | "model">>
+    updates: Partial<Pick<SavedChat, "messages" | "model">>
   ): boolean {
     const data = this.getStorageData();
     const chatIndex = data.chats.findIndex((chat) => chat.id === id);
