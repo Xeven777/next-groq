@@ -20,8 +20,8 @@ interface ImageUploadProps {
 }
 
 const SUPPORTED_FORMATS = ["image/jpeg", "image/png", "image/webp"];
-const MAX_SIZE_BYTES = 2 * 1024 * 1024; // 2MB for base64
-const MAX_IMAGES = 5;
+const MAX_SIZE_BYTES = 4 * 1024 * 1024; // 2MB for base64
+const MAX_IMAGES = 4;
 
 export function ImageUpload({
   images,
@@ -170,17 +170,18 @@ export function ImageUpload({
   }
 
   return (
-    <div className="space-y-3 animate-in slide-in-from-top-2 duration-300">
-      {/* Upload Area */}
+    <div className="animate-in slide-in-from-top-2 duration-300">
+      {/* Upload Area with Integrated Images */}
       <div
         className={`
-          border-2 border-dashed rounded-xl p-6 text-center transition-all duration-300 ease-in-out
+          border-2 border-dashed rounded-xl transition-all duration-300 ease-in-out
           ${
             isDragging
               ? "border-orange-500 bg-orange-50 dark:bg-orange-900/20 scale-[1.02]"
               : "border-neutral-300 dark:border-neutral-600 hover:border-orange-400 hover:bg-neutral-50 dark:hover:bg-neutral-800/50"
           }
           ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
+          ${images.length > 0 ? "p-4" : "p-6"}
         `}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
@@ -198,62 +199,79 @@ export function ImageUpload({
           className="hidden"
           disabled={disabled}
         />
-        <div className="text-sm text-neutral-600 dark:text-neutral-400">
-          <div className="mb-2">
-            <span className="text-2xl">📷</span>
+
+        {/* Image Grid or Upload Prompt */}
+        {images.length > 0 ? (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {images.map((image, index) => (
+              <div
+                key={image.id}
+                className={`relative group animate-in zoom-in-50 duration-300 h-32 ${
+                  index === 0
+                    ? "delay-0"
+                    : index === 1
+                    ? "delay-75"
+                    : index === 2
+                    ? "delay-150"
+                    : "delay-300"
+                }`}
+              >
+                <Image
+                  src={image.preview}
+                  alt={image.file.name}
+                  fill
+                  className="rounded-lg object-cover border border-neutral-200 dark:border-neutral-700 shadow-sm group-hover:shadow-md transition-all duration-200 group-hover:saturate-150 group-hover:brightness-105"
+                />
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removeImage(image.id);
+                  }}
+                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 transition-all duration-200 opacity-0 group-hover:opacity-100 hover:scale-110 shadow-lg z-10"
+                  title="Remove image"
+                >
+                  ×
+                </button>
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent text-white text-[10px] p-2 rounded-b-lg truncate">
+                  {image.file.name}
+                </div>
+              </div>
+            ))}
+
+            {/* Add More Button */}
+            {images.length < maxImages && (
+              <div className="flex items-center justify-center border-dashed border-neutral-300 dark:border-neutral-600/40 rounded-lg hover:border-orange-400 transition-colors duration-200">
+                <div className="text-center">
+                  <span className="text-2xl mb-1 block">+</span>
+                  <span className="text-xs text-neutral-500">Add more</span>
+                </div>
+              </div>
+            )}
           </div>
-          <p className="font-medium text-neutral-800 dark:text-neutral-200">
-            Add images
-          </p>
-          <p className="text-xs mt-1">
-            Click, drag & drop, or paste images here
-          </p>
-          <p className="text-xs mt-1 text-neutral-500">
-            Max {maxImages} images, {Math.round(maxSizeBytes / (1024 * 1024))}MB
-            each
-          </p>
-        </div>
+        ) : (
+          <div className="text-center text-sm text-neutral-600 dark:text-neutral-400">
+            <div className="mb-3">
+              <span className="text-3xl">📷</span>
+            </div>
+            <p className="font-medium text-neutral-800 dark:text-neutral-200 mb-2">
+              Add images
+            </p>
+            <p className="text-xs mb-1">
+              Click, drag & drop, or paste images here
+            </p>
+            <p className="text-xs text-neutral-500">
+              Max {maxImages} images, {Math.round(maxSizeBytes / (1024 * 1024))}
+              MB each
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Error Message */}
       {error && (
-        <div className="text-red-500 text-sm p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800 animate-in slide-in-from-top-1 duration-200">
+        <div className="text-red-500 text-sm p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800 animate-in slide-in-from-top-1 duration-200 mt-3">
           {error}
-        </div>
-      )}
-
-      {/* Image Previews */}
-      {images.length > 0 && (
-        <div className="flex flex-wrap gap-3 animate-in slide-in-from-bottom-2 duration-300">
-          {images.map((image, index) => (
-            <div
-              key={image.id}
-              className="relative group animate-in zoom-in-50 duration-300"
-              style={{ animationDelay: `${index * 50}ms` }}
-            >
-              <Image
-                src={image.preview}
-                alt={image.file.name}
-                width={80}
-                height={80}
-                className="rounded-xl object-cover border border-neutral-200 dark:border-neutral-700 shadow-sm group-hover:shadow-md transition-all duration-200"
-              />
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  removeImage(image.id);
-                }}
-                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 transition-all duration-200 opacity-0 group-hover:opacity-100 hover:scale-110 shadow-lg"
-                title="Remove image"
-              >
-                ×
-              </button>
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent text-white text-xs p-2 rounded-b-xl truncate">
-                {image.file.name}
-              </div>
-            </div>
-          ))}
         </div>
       )}
     </div>

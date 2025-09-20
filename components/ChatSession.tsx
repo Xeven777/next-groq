@@ -145,7 +145,7 @@ export function ChatSession({
                         part.type === "file" &&
                         part.mediaType?.startsWith("image/")
                     ) && (
-                      <div className="flex flex-wrap gap-2">
+                      <div className="grid grid-cols-4 gap-2 w-full">
                         {m.parts.map((part, index) =>
                           part.type === "file" &&
                           part.mediaType?.startsWith("image/") ? (
@@ -155,7 +155,7 @@ export function ChatSession({
                               alt="User uploaded image"
                               width={200}
                               height={200}
-                              className="rounded-lg object-cover border border-neutral-200 dark:border-neutral-700 max-w-xs"
+                              className="rounded-lg object-cover shadow max-w-40 aspect-square"
                             />
                           ) : null
                         )}
@@ -354,7 +354,7 @@ export function ChatSession({
             <button
               type="button"
               onClick={() => setIsImageUploadOpen(!isImageUploadOpen)}
-              className={`absolute left-3 top-1/2 -translate-y-1/2 z-10 p-2 rounded-lg transition-all duration-200 hover:scale-110 ${
+              className={`absolute left-3 top-1/2 -translate-y-1/2 z-10 p-2 rounded-lg transition-all duration-200 ${
                 isImageUploadOpen
                   ? "text-orange-600 bg-orange-100 dark:bg-orange-900/30"
                   : "text-neutral-500 hover:text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20"
@@ -381,7 +381,7 @@ export function ChatSession({
           <textarea
             id="chat-input"
             className={`block caret-orange-600 w-full rounded-xl border-none bg-neutral-200 p-4 pr-20 text-sm text-neutral-900 focus:outline-hidden focus:ring-2 focus:ring-orange-500 dark:bg-neutral-800 dark:text-neutral-200 sm:text-base resize-y ${
-              supportsVision ? "pl-12" : "pl-4"
+              supportsVision ? "pl-14" : "pl-4"
             }`}
             placeholder={
               supportsVision
