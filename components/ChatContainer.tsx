@@ -62,38 +62,6 @@ const ChatContainer = memo(({ userIp }: { userIp: string }) => {
   );
 
   // Chat history handlers
-  const handleOpenChat = useCallback(
-    (chat: SavedChat) => {
-      try {
-        // Save current chat if it has messages
-        if (currentMessages.length > 0 && !currentChatId) {
-          saveCurrentChat(currentMessages, selectedModel);
-        }
-
-        // Load the selected chat
-        const loadedChat = loadChat(chat.id);
-        if (loadedChat) {
-          setSelectedModel(loadedChat.model);
-          setCurrentMessages(loadedChat.messages);
-          setChatSessionKey((prev) => prev + 1); // Force re-render with new messages
-          addNotification("Chat loaded successfully", "success", 3000);
-        } else {
-          addNotification("Failed to load chat", "error");
-        }
-      } catch (err) {
-        console.error("Error opening chat:", err);
-        addNotification("Failed to open chat", "error");
-      }
-    },
-    [
-      currentMessages,
-      currentChatId,
-      selectedModel,
-      saveCurrentChat,
-      loadChat,
-      addNotification,
-    ]
-  );
 
   const handleContinueChat = useCallback(
     (chat: SavedChat) => {
@@ -182,7 +150,7 @@ const ChatContainer = memo(({ userIp }: { userIp: string }) => {
     if (error) {
       addNotification(error, "error");
     }
-  }, [error, addNotification]);
+  }, [error]); // Remove addNotification from dependencies to prevent re-renders
 
   return (
     <>
@@ -263,7 +231,6 @@ const ChatContainer = memo(({ userIp }: { userIp: string }) => {
         currentChatId={currentChatId}
         isOpen={isSidebarOpen}
         onToggle={toggleSidebar}
-        onOpenChat={handleOpenChat}
         onContinueChat={handleContinueChat}
         onDeleteChat={handleDeleteChat}
         onNewChat={handleNewChat}

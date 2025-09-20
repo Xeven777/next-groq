@@ -9,7 +9,6 @@ interface ChatHistorySidebarProps {
   currentChatId?: string | null;
   isOpen: boolean;
   onToggle: () => void;
-  onOpenChat: (chat: SavedChat) => void;
   onContinueChat: (chat: SavedChat) => void;
   onDeleteChat: (chatId: string) => void;
   onNewChat: () => void;
@@ -20,7 +19,6 @@ export const ChatHistorySidebar = memo(function ChatHistorySidebar({
   currentChatId,
   isOpen,
   onToggle,
-  onOpenChat,
   onContinueChat,
   onDeleteChat,
   onNewChat,
@@ -145,7 +143,6 @@ export const ChatHistorySidebar = memo(function ChatHistorySidebar({
                     key={chat.id}
                     chat={chat}
                     isActive={chat.id === currentChatId}
-                    onOpen={onOpenChat}
                     onContinue={onContinueChat}
                     onDelete={onDeleteChat}
                   />

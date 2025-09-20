@@ -20,11 +20,11 @@ export const Notification = memo(function Notification({
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsVisible(false);
-      setTimeout(onClose, 300); // Wait for animation to complete
+      setTimeout(onClose, 350); // Wait for animation to complete
     }, duration);
 
     return () => clearTimeout(timer);
-  }, [duration, onClose]);
+  }, [duration]); // Remove onClose from dependencies to prevent re-renders
 
   const getTypeStyles = () => {
     switch (type) {
@@ -45,14 +45,28 @@ export const Notification = memo(function Notification({
     switch (type) {
       case "success":
         return (
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
             <path d="M9 12l2 2 4-4" />
             <circle cx="12" cy="12" r="10" />
           </svg>
         );
       case "error":
         return (
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
             <circle cx="12" cy="12" r="10" />
             <line x1="15" y1="9" x2="9" y2="15" />
             <line x1="9" y1="9" x2="15" y2="15" />
@@ -60,7 +74,14 @@ export const Notification = memo(function Notification({
         );
       case "warning":
         return (
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
             <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
             <line x1="12" y1="9" x2="12" y2="13" />
             <line x1="12" y1="17" x2="12.01" y2="17" />
@@ -68,7 +89,14 @@ export const Notification = memo(function Notification({
         );
       case "info":
         return (
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
             <circle cx="12" cy="12" r="10" />
             <line x1="12" y1="16" x2="12" y2="12" />
             <line x1="12" y1="8" x2="12.01" y2="8" />
@@ -86,7 +114,7 @@ export const Notification = memo(function Notification({
       }`}
     >
       <div
-        className={`flex items-start gap-3 p-4 rounded-lg border shadow-lg ${getTypeStyles()}`}
+        className={`flex items-start gap-3 p-4 rounded-lg backdrop-blur-lg border shadow-lg ${getTypeStyles()}`}
       >
         <div className="flex-shrink-0">{getIcon()}</div>
         <div className="flex-1 text-sm">{message}</div>
@@ -97,7 +125,14 @@ export const Notification = memo(function Notification({
           }}
           className="flex-shrink-0 opacity-70 hover:opacity-100 transition-opacity"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
             <line x1="18" y1="6" x2="6" y2="18" />
             <line x1="6" y1="6" x2="18" y2="18" />
           </svg>
@@ -122,12 +157,16 @@ export function useNotifications() {
     type: "success" | "error" | "warning" | "info" = "info",
     duration?: number
   ) => {
-    const id = `notification-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const id = `notification-${Date.now()}-${Math.random()
+      .toString(36)
+      .substr(2, 9)}`;
     setNotifications((prev) => [...prev, { id, message, type, duration }]);
   };
 
   const removeNotification = (id: string) => {
-    setNotifications((prev) => prev.filter((notification) => notification.id !== id));
+    setNotifications((prev) =>
+      prev.filter((notification) => notification.id !== id)
+    );
   };
 
   const NotificationContainer = memo(function NotificationContainer() {

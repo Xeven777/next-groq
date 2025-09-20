@@ -48,8 +48,13 @@ export function generateChatTitle(messages: UIMessage[]): string {
     return "New Chat";
   }
 
-  // Truncate to 50 characters and add ellipsis if needed
-  return fullText.length > 50 ? `${fullText.substring(0, 50)}...` : fullText;
+  // Use first 5-6 words for title
+  const words = fullText.split(/\s+/).filter((word) => word.length > 0);
+  const titleWords = words.slice(0, 5);
+  const title = titleWords.join(" ");
+
+  // Add ellipsis if there are more words
+  return words.length > 5 ? `${title}...` : title;
 }
 
 // localStorage operations with error handling

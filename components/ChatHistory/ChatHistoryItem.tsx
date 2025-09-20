@@ -7,7 +7,6 @@ import { getModelByValue } from "@/lib/model";
 interface ChatHistoryItemProps {
   chat: SavedChat;
   isActive?: boolean;
-  onOpen: (chat: SavedChat) => void;
   onContinue: (chat: SavedChat) => void;
   onDelete: (chatId: string) => void;
 }
@@ -15,7 +14,6 @@ interface ChatHistoryItemProps {
 export const ChatHistoryItem = memo(function ChatHistoryItem({
   chat,
   isActive = false,
-  onOpen,
   onContinue,
   onDelete,
 }: ChatHistoryItemProps) {
@@ -76,13 +74,13 @@ export const ChatHistoryItem = memo(function ChatHistoryItem({
 
       {/* Model Badge */}
       <div className="mb-2">
-        <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-neutral-100 text-neutral-700 dark:bg-neutral-700 dark:text-neutral-300">
+        <span className="inline-flex items-center px-2 py-1 rounded-md text-[10px] md:text-xs font-medium bg-neutral-100 text-neutral-700 dark:bg-neutral-700/50 dark:text-neutral-300">
           {modelLabel}
         </span>
       </div>
 
       {/* Timestamp and Message Count */}
-      <div className="flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-400 mb-3">
+      <div className="flex items-center justify-between text-neutral-500 dark:text-neutral-400 mb-3 text-xs">
         <span>{formatDate(chat.updatedAt)}</span>
         <span>{chat.messages.length} messages</span>
       </div>
@@ -111,18 +109,9 @@ export const ChatHistoryItem = memo(function ChatHistoryItem({
         <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={() => onOpen(chat)}
-            className="flex-1 px-2 py-1 text-xs font-medium text-orange-600 bg-orange-100 hover:bg-orange-200 dark:text-orange-400 dark:bg-orange-900/30 dark:hover:bg-orange-900/50 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-1"
-            title="Open chat (read-only)"
-            aria-label={`Open chat: ${chat.title}`}
-          >
-            Open
-          </button>
-          <button
-            type="button"
             onClick={() => onContinue(chat)}
-            className="flex-1 px-2 py-1 text-xs font-medium text-neutral-600 bg-neutral-200 hover:bg-neutral-300 dark:text-neutral-300 dark:bg-neutral-700 dark:hover:bg-neutral-600 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:ring-offset-1"
-            title="Continue chat (editable)"
+            className="flex-1 px-2 py-1 text-xs font-medium text-orange-600 bg-orange-100 hover:bg-orange-200 dark:text-orange-400 dark:bg-orange-900/30 dark:hover:bg-orange-900/50 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-1"
+            title="Continue chat"
             aria-label={`Continue chat: ${chat.title}`}
           >
             Continue
