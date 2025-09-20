@@ -1,6 +1,6 @@
 "use client";
 import { useChat } from "@ai-sdk/react";
-import { DefaultChatTransport } from "ai";
+import { DefaultChatTransport, UIMessage } from "ai";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
@@ -24,12 +24,16 @@ export function ChatSession({
   input,
   setInput,
   modelControls,
+  initialMessages,
+  onMessagesChange,
 }: {
   model: string;
   userIp: string;
   input: string;
   setInput: (v: string) => void;
   modelControls?: React.ReactNode;
+  initialMessages?: UIMessage[];
+  onMessagesChange?: (messages: UIMessage[]) => void;
 }) {
   const [responseTimes, setResponseTimes] = useState<Record<string, number>>(
     {}
@@ -53,11 +57,19 @@ export function ChatSession({
 
   const { messages, status, error, sendMessage } = useChat({
     transport,
+    messages: initialMessages,
     onFinish: ({ message }) => {
       const duration = (Date.now() - startTimeRef.current) / 1000;
       setResponseTimes((prev) => ({ ...prev, [message.id]: duration }));
     },
   });
+
+  // Call onMessagesChange when messages change
+  useEffect(() => {
+    if (onMessagesChange) {
+      onMessagesChange(messages);
+    }
+  }, [messages, onMessagesChange]);
 
   const isLoading = status === "streaming";
 
