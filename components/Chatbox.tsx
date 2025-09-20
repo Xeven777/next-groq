@@ -1,10 +1,12 @@
 "use client";
 import { memo, useCallback, useState } from "react";
-import { models } from "@/lib/model";
+import { models, type Model } from "@/lib/model";
 import { ChatSession } from "./ChatSession";
 
 const Chatbox = memo(({ userIp }: { userIp: string }) => {
-  const [selectedModel, setSelectedModel] = useState("llama-3.3-70b-versatile");
+  const [selectedModel, setSelectedModel] = useState<Model["value"]>(
+    "meta-llama/llama-4-scout-17b-16e-instruct"
+  );
   const [input, setInput] = useState("");
 
   const handleModelChange = useCallback(

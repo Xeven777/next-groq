@@ -15,6 +15,8 @@ import sparkles from "@/assets/Sparkle.svg";
 import send from "@/assets/send.svg";
 import robo from "@/assets/Robo.svg";
 import copy from "@/assets/copy.svg";
+import { ImageUpload, UploadedImage } from "./ImageUpload";
+import { getModelByValue } from "@/lib/model";
 
 export function ChatSession({
   model,
@@ -32,8 +34,13 @@ export function ChatSession({
   const [responseTimes, setResponseTimes] = useState<Record<string, number>>(
     {}
   );
+  const [images, setImages] = useState<UploadedImage[]>([]);
+  const [isImageUploadOpen, setIsImageUploadOpen] = useState(false);
   const startTimeRef = useRef<number>(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const currentModel = getModelByValue(model);
+  const supportsVision = currentModel?.supportsVision || false;
 
   const transport = useMemo(
     () =>
@@ -57,12 +64,34 @@ export function ChatSession({
   const handleSubmit = useCallback(
     (e?: React.FormEvent) => {
       e?.preventDefault();
-      if (!input.trim()) return;
+      if (!input.trim() && images.length === 0) return;
+
       startTimeRef.current = Date.now();
-      sendMessage({ parts: [{ type: "text", text: input.trim() }] });
+
+      // Create message parts
+      const parts: any[] = [];
+
+      // Add text part if there's input
+      if (input.trim()) {
+        parts.push({ type: "text", text: input.trim() });
+      }
+
+      // Add image parts if there are images and model supports vision
+      if (images.length > 0 && supportsVision) {
+        images.forEach((image) => {
+          parts.push({
+            type: "file",
+            mediaType: image.file.type,
+            url: image.base64,
+          });
+        });
+      }
+
+      sendMessage({ parts });
       setInput("");
+      setImages([]);
     },
-    [input, sendMessage, setInput]
+    [input, images, sendMessage, setInput, supportsVision]
   );
 
   const scrollToBottom = useCallback(() => {
@@ -98,12 +127,40 @@ export function ChatSession({
                     width={32}
                     height={32}
                   />
-                  <div className="flex max-w-3xl items-center">
-                    <p>
-                      {m.parts.map((part) =>
-                        part.type === "text" ? part.text : null
-                      )}
-                    </p>
+                  <div className="flex max-w-3xl flex-col space-y-2">
+                    {/* Text content */}
+                    {m.parts.some((part) => part.type === "text") && (
+                      <p>
+                        {m.parts.map((part, index) =>
+                          part.type === "text" ? (
+                            <span key={index}>{part.text}</span>
+                          ) : null
+                        )}
+                      </p>
+                    )}
+
+                    {/* Image content */}
+                    {m.parts.some(
+                      (part) =>
+                        part.type === "file" &&
+                        part.mediaType?.startsWith("image/")
+                    ) && (
+                      <div className="flex flex-wrap gap-2">
+                        {m.parts.map((part, index) =>
+                          part.type === "file" &&
+                          part.mediaType?.startsWith("image/") ? (
+                            <Image
+                              key={index}
+                              src={part.url}
+                              alt="User uploaded image"
+                              width={200}
+                              height={200}
+                              className="rounded-lg object-cover border border-neutral-200 dark:border-neutral-700 max-w-xs"
+                            />
+                          ) : null
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               ) : (
@@ -279,22 +336,67 @@ export function ChatSession({
       {modelControls && <div className="mt-2">{modelControls}</div>}
 
       {/* Input */}
-      <form className="mt-2" onSubmit={handleSubmit}>
+      <form className="mt-2 space-y-3" onSubmit={handleSubmit}>
+        {/* Image Upload - only show for vision-capable models */}
+        {supportsVision && (
+          <ImageUpload
+            images={images}
+            onImagesChange={setImages}
+            disabled={isLoading}
+            isOpen={isImageUploadOpen}
+            onToggle={() => setIsImageUploadOpen(!isImageUploadOpen)}
+          />
+        )}
+
         <div className="relative">
+          {/* Image Toggle Icon - only show for vision models */}
+          {supportsVision && (
+            <button
+              type="button"
+              onClick={() => setIsImageUploadOpen(!isImageUploadOpen)}
+              className={`absolute left-3 top-1/2 -translate-y-1/2 z-10 p-2 rounded-lg transition-all duration-200 hover:scale-110 ${
+                isImageUploadOpen
+                  ? "text-orange-600 bg-orange-100 dark:bg-orange-900/30"
+                  : "text-neutral-500 hover:text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20"
+              }`}
+              title={isImageUploadOpen ? "Close image upload" : "Add images"}
+            >
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="transition-transform duration-200"
+              >
+                <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+                <circle cx="9" cy="9" r="2" />
+                <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+              </svg>
+            </button>
+          )}
           <textarea
             id="chat-input"
-            className="block caret-orange-600 w-full rounded-xl border-none bg-neutral-200 p-4 pl-2 pr-20 text-sm text-neutral-900 focus:outline-hidden focus:ring-2 focus:ring-orange-500 dark:bg-neutral-800 dark:text-neutral-200 sm:text-base resize-y"
-            placeholder="Enter your prompt"
+            className={`block caret-orange-600 w-full rounded-xl border-none bg-neutral-200 p-4 pr-20 text-sm text-neutral-900 focus:outline-hidden focus:ring-2 focus:ring-orange-500 dark:bg-neutral-800 dark:text-neutral-200 sm:text-base resize-y ${
+              supportsVision ? "pl-12" : "pl-4"
+            }`}
+            placeholder={
+              supportsVision
+                ? "Enter your prompt / add images"
+                : "Enter your prompt"
+            }
             rows={1}
             value={input}
-            required
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
           />
           <button
             type="submit"
-            disabled={isLoading}
-            className="absolute bottom-2 right-2.5 rounded-lg px-4 py-2 text-sm font-medium text-neutral-200 bg-orange-600 hover:bg-orange-700 dark:focus:ring-orange-800 sm:text-base flex items-center gap-2 active:scale-95 transition-all"
+            disabled={isLoading || (!input.trim() && images.length === 0)}
+            className="absolute bottom-2 right-2.5 rounded-lg px-4 py-2 text-sm font-medium text-neutral-200 bg-orange-600 hover:bg-orange-700 dark:focus:ring-orange-800 sm:text-base flex items-center gap-2 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? (
               <>
