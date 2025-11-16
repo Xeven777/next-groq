@@ -15,16 +15,8 @@ const Chatbox = memo(({ userIp }: { userIp: string }) => {
   const [chatSessionKey, setChatSessionKey] = useState(0);
 
   // Chat history hook
-  const {
-    chats,
-    currentChatId,
-    saveCurrentChat,
-    loadChat,
-    deleteChat,
-    setCurrentChatId,
-    enableAutoSave,
-    disableAutoSave,
-  } = useChatHistory();
+  const { saveCurrentChat, setCurrentChatId, enableAutoSave } =
+    useChatHistory();
 
   const handleModelChange = useCallback(
     (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -52,70 +44,6 @@ const Chatbox = memo(({ userIp }: { userIp: string }) => {
     },
     [enableAutoSave, selectedModel]
   );
-
-  // Chat history handlers
-  const handleOpenChat = useCallback(
-    (chat: SavedChat) => {
-      // Save current chat if it has messages
-      if (currentMessages.length > 0 && !currentChatId) {
-        saveCurrentChat(currentMessages, selectedModel);
-      }
-
-      // Load the selected chat
-      const loadedChat = loadChat(chat.id);
-      if (loadedChat) {
-        setSelectedModel(loadedChat.model);
-        setCurrentMessages(loadedChat.messages);
-        setChatSessionKey((prev) => prev + 1); // Force re-render with new messages
-      }
-    },
-    [currentMessages, currentChatId, selectedModel, saveCurrentChat, loadChat]
-  );
-
-  const handleContinueChat = useCallback(
-    (chat: SavedChat) => {
-      // Save current chat if it has messages
-      if (currentMessages.length > 0 && !currentChatId) {
-        saveCurrentChat(currentMessages, selectedModel);
-      }
-
-      // Load the selected chat for continuation
-      const loadedChat = loadChat(chat.id);
-      if (loadedChat) {
-        setSelectedModel(loadedChat.model);
-        setCurrentMessages(loadedChat.messages);
-        setChatSessionKey((prev) => prev + 1); // Force re-render with new messages
-      }
-    },
-    [currentMessages, currentChatId, selectedModel, saveCurrentChat, loadChat]
-  );
-
-  const handleDeleteChat = useCallback(
-    (chatId: string) => {
-      deleteChat(chatId);
-    },
-    [deleteChat]
-  );
-
-  const handleNewChat = useCallback(() => {
-    // Save current chat if it has messages
-    if (currentMessages.length > 0) {
-      saveCurrentChat(currentMessages, selectedModel);
-    }
-
-    // Reset to new chat
-    setCurrentChatId(null);
-    setCurrentMessages([]);
-    setInput("");
-    disableAutoSave();
-    setChatSessionKey((prev) => prev + 1); // Force re-render
-  }, [
-    currentMessages,
-    selectedModel,
-    saveCurrentChat,
-    setCurrentChatId,
-    disableAutoSave,
-  ]);
 
   return (
     <div className="flex pb-0.5 h-svh w-full flex-col max-w-5xl mx-auto">
